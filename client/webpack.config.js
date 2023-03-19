@@ -1,5 +1,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackPwaManifest = require('webpack-pwa-manifest');
+const WorkboxPlugin = require('workbox-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 const { InjectManifest } = require('workbox-webpack-plugin');
 
@@ -18,6 +20,18 @@ module.exports = () => {
       path: path.resolve(__dirname, 'dist'),
     },
     plugins: [
+      new HtmlWebpackPlugin({     //will create index.html in /dist
+        template: './index.html',
+        title: 'html webpack plugin'
+      }),
+      // new MiniCssExtractPlugin(),
+      new WebpackPwaManifest(),
+      new WorkboxPlugin(),
+      new WorkboxPlugin.GenerateSW(), //call workbox generator fxn for registering service worker
+      new InjectManifest({
+        swSrc: './src/src-sw.js',
+        swDest: 'service-worker.js',
+      }),
       
     ],
 
@@ -25,7 +39,7 @@ module.exports = () => {
       rules: [
         {
           test: /\.css$/i,
-          use: ['style-loader', 'css-loader'],
+          use: [MiniCssExtractPlugin.loader, 'css-loader'],
         },
         {
           test: /\.m?js$/,

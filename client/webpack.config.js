@@ -4,8 +4,8 @@ const {GenerateSW} = require('workbox-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('path');
 
-// TODO: Add and configure workbox plugins for a service worker and manifest file.
-// TODO: Add CSS loaders and babel to webpack.
+// TODO: Add and configure workbox plugins for a service worker and manifest file. DONE
+// TODO: Add CSS loaders and babel to webpack. DONE
 
 module.exports = () => {
   return {

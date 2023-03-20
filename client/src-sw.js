@@ -27,4 +27,53 @@ warmStrategyCache({
 registerRoute(({ request }) => request.mode === 'navigate', pageCache);
 
 // TODO: Implement asset caching
-registerRoute();
+//probably also want to cache CSS and JS (possibly why header wasn't showing up?)
+const cacheStatic = 'static-resources';
+const matchCallback = ({ request }) => {
+  console.log(request);
+  return(
+    request.destination === 'style' ||
+    request.destination === 'script' ||
+    request.destination === 'worker' //also cache the SW?
+  );
+};
+
+registerRoute(matchCallback, new CacheFirst({
+  cacheStatic, 
+  plugins: [
+    new CacheableResponsePlugin({
+      statuses: [0, 200],
+    }),
+    new ExpirationPlugin({
+      maxEntries: 50,
+      maxAgeSeconds: 30 * 24 * 60 * 60,
+    }),
+  ],
+})
+);
+
+//offline fallback
+const pageFallback = 'offline.html';
+
+self.addEventListener('install', event => {
+  const files = [pageFallback];
+
+  event.waitUntil(
+    self.caches
+      .open('workbox-offline-fallbacks')
+      .then(cache => cache.addAll(files))
+  );
+});
+
+const handler = async options => {
+  const dest = options.request.destination;
+  const cache = await self.caches.open(offlineFallback); //unsure if this is correct or if it needs to be 'workbox-offline-fallbacks' instead
+
+  if (dest === 'document') { //should dest === something else?
+    return (await cache.match(pageFallback)) || Response.error();
+  }
+
+  return Response.error();
+};
+
+setCatchHandler(handler);

@@ -67,9 +67,9 @@ self.addEventListener('install', event => {
 
 const handler = async options => {
   const dest = options.request.destination;
-  const cache = await self.caches.open('workbox-offline-fallbacks');
+  const cache = await self.caches.open(offlineFallback); //unsure if this is correct or if it needs to be 'workbox-offline-fallbacks' instead
 
-  if (dest === 'document') {
+  if (dest === 'document') { //should dest === something else?
     return (await cache.match(pageFallback)) || Response.error();
   }
 
